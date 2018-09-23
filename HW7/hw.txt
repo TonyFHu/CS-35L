@@ -1,0 +1,11 @@
+1. Secure, since the data sent has no meaning without the private keys.
+   Any communication between the host and client cannot be decrypted
+  (1) Still secure since the private key is not leaked
+  (2) If the private key is stored on the USB, then it can be accessed.
+      Which leads to the loss of security
+  Security of the network hinges on the secrecy of the private key;
+  A compromised private key leads to a compromised network.
+
+2. The command merely verifies that the document was signed using the private key counterpart to the given public key.
+   The key itself could belong to anyone;
+      To verify the legitimacy of the owner, it would make sense to confirm that the owner of the public key is expected. 

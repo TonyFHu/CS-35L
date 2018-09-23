@@ -1,0 +1,113 @@
+mkdir gitroot
+cd gitroot
+cp ~eggert/src/gnu/diffutils .
+   get a copy of diffutils repository
+
+cd diffutils
+git log > git-log.txt
+   copy log into git-log.txt
+
+git tag > git-tags.txt
+   copy tags into git-tags.txt
+
+emacs git-log.txt
+Ctrl-S 'maint: quote'
+   commit 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f
+
+git show [commit 62ca21...] > quote-patch.txt
+   store the patch in quote-patch.txt
+
+git checkout v3.0
+   checkout version 3.0
+
+patch -p1 < quote-patch.txt
+   apply the patch
+   a couple hunks failed and the file to change couldnt be found for a couple
+
+git status
+   shows modified files
+   NEWS
+   README
+   TODO
+   doc/diagmeet.note
+   ms/config.bat
+   ms/config.site
+   po/en.po
+   src/analyze.c
+   src/cmp.c
+   src/context.c
+   src/diff.c
+   src/diff.h
+   src/diff3.c
+   src/dir.c
+   src/ifdef.c
+   src/io.c
+   src/sdiff.c
+   src/side.c
+   src/system.h
+   src/util.c
+   tests/help-version
+
+emacs NEWS
+C-x v u yes
+emacs README
+C-x v u yes
+emacs TOTO
+C-x v u yes
+... repeat for all non .c files to revert changes
+
+
+emacs src/analyze.c
+C-x v =
+   C-c C-c to move to source
+      manually change file to previous version (unless character string constant)
+      repeat for each hunk
+emacs src/cmp.c
+   repeat the above process
+repeat for each .c file
+
+
+emacs src/diff.c.rej
+emacs src/diff.c
+   apply changes manually
+   use C-s to search for line
+emacs src/diff3.c.rej
+emacs src/diff3.c
+   apply changes manually
+   use C-s to search for line
+
+rm NEWS.orig
+rm [Other untracked files]
+   move git-log, git-tags, and quote-patch to a 'safe' location
+
+git diff > quote-3.0-patch.txt
+
+./bootstrap
+patch -p1 < [additional patch]
+      file to patch: lib/stdio.in.h
+./configure
+
+
+src/diff . -
+   outputs: src/diff: cannot compare '-' to a directory
+
+src/diff --help
+   uses '[X]' instead of `[X]'
+      FILES are 'FILE1 FILE2' or 'DIR1 DIR2'...
+
+cp -r src ~
+   mv ~/src ~/diffutils-3.0-patch
+
+git checkout v3.0
+   new copy
+cp -r src ~
+   mv ~/src ~/diffutils-3.0
+
+D/diff -pru diffutils-3.0 diffutils-3.0-patch > quote-3.0-test.txt
+
+
+The files are not identical
+   but the difference is trivial
+
+
+

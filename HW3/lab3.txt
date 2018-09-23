@@ -1,0 +1,27 @@
+download coreutils-8.29
+use WinSCP to move to linux server
+wget signature and keyring
+gpg --verify...					
+    "This key is not certified with a trusted signature!"
+    "There is no indication that the signature belongs to the owner."
+    
+    The key used to sign is not trusted
+tar -xzvf fileName				error; not in gzip format
+tar -xvf fileName				decompress file
+./configure --prefix=/.../			create Makefile for directory			
+make	    					compile and create executables
+make install					install executables into final directories
+create the given shell script la
+la -A						still outputs the directories . and ..
+ls -a -A					also outputs . and ..
+wget patch URL					didn't use quotes, so stopped at semicolon
+wget 'patch URL'				worked this time
+patch -p1 <....patch				failed to patch NEWS, successfully patched src/ls.c
+make  	  					runs recursively on sub directories. 
+	Leaves .../coreutils-8.29/po and .../gnulib-tests without doing anything
+	,since no modifications to requisites were made.
+(~/testing) ~/coreutils-8.29/src/ls -a -A		works as intended (no . and ..)
+    outputs A B C
+(~/testing) ls -a -A 			still buggy
+    outputs . .. A B C
+

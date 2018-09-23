@@ -1,0 +1,74 @@
+Download coreutils-with-bug
+Use WinSCP to move onto the linux server
+tar -xvf coreutils-with-bug			decompress file
+cd coreutils-with-bug				change working directory
+./configure --prefix=/.../			installation path
+make						build executables
+	"conflicting types for futimens" - futimens was declared twice differently
+cd ~
+wget ...coreutils.diff				get the renaming patch
+cd coreutils-with-bug
+patch -p0 <../coreutils.diff			fails to patch
+      "can't find the file to patch at input line 3"
+emacs ../coreutils.diff      	       	     	need to remove the '~'
+      used C-s ~ Enter to find the '~'s
+patch -p0 <../coreutils.diff			successfully patched
+      the patch changes a declaration of futimens to coreutils_futimens
+      the declarations no longer conflict since they have different names
+make  	  	       	  	 	  	try to build executables
+make install					install in install path
+
+cd /tmp
+touch -d '1918-11-11 11:00 GMT' test		
+touch now
+sleep 1
+touch now1
+TZ=UTC+7 ~/coreutilsInstall/bin/ls -lt --full-time test now now1
+	create three files and check their timestamps (in PDT)
+	test is listed first, even though it is the 'oldest' file
+cd ~
+emacs ~/coreutils-with-bug/src/ls.c		edit source for ls
+C-s '-t'					-t -> sort_time
+C-s 'sort_time'					find, in the switch statement, that compare_mtime is used (inside function sort_files)
+C-s 'compare_mtime'				calls cmp_mtime
+C-s 'cmp_mtime'					cmp_mtime defined on line 2877
+    calls timespec_cmp
+C-s 'timespec_cmp'				unable to find definition in ls.c
+gdb ~/coreutils-with-bug/src/ls	   	     	run debugger on ls
+    break sort_files				break at function sort_files
+    break compare_mtime				break at function compare_mtime
+    run -lt --full-time now now1 test
+    ~continue through until timespec		
+    ~... i locals				diff = <value optimized out>
+    Looking at the code for timespec_cmp, though, integer overflow is likely the cause
+exit and cd ~/coreutils-with-bug/lib		navigate to the libraries
+ls   	    					list the files
+	located timespec.h
+cd ~
+cp coreutils-with-bug/lib/timespec.h timespec.h	grab a copy of timespec.h
+emacs timespec.h		     		edit timespec.h
+C-s 'timespec_cmp'				locate definition
+modify timespec_cmp to avoid integer overflow
+       avoid changing values; directly compare
+diff -u ~/coreutils-with-bug/lib/timespec.h timespec.h > patch.diff
+     create the diff file
+emacs patch.diff				change paths to match
+      both: lib/timespec.h
+create changelog
+cat patch.diff >> changelog			append the patch to the changelog
+mv changelog lab4.diff				rename changelog
+patch -p0 < patch.diff				apply the patch
+cd ~/coreutils-with-bug				
+make						remake executables
+cd /tmp
+make the testing files as before
+~/coreutils-with-bug/src/ls -lt --full-time now1 now test
+	correct order now
+~/coreutilsInstall/bin/ls -lt --full-time now1 now test
+	wrong order (still old implementation)
+cd ~
+make the testing files as before
+ls -lt --full-time now1 now test		test is displayed with a date in 2054, which is way in the future. 
+   So SEASnet, like the bugged coreutils, fails to order the files properly
+   likely due to padding with zeroes when changing from a 32bit timestamp to a 64bit timestamp.
+   The negative displacement would be lost resulting in a future date.   	

@@ -1,0 +1,24 @@
+Each line consists of 32 randomly chosen characters followed by a space
+
+
+
+Lines:	Time (sfrob):	 	Time (sfrobu):		Time (sfrobu -f)	
+10^3	0m0.007s 		0m0.071s		0m0.070s
+10^4	0m0.060s	  	0m0.644s		0m0.655s
+10^5	0m0.657s		0m6.625s		0m6.446s
+10^6	0m7.059s		1m8.281s		1m7.722s
+
+
+Lines:	Time (sfrobs):	 	Time (sfrobs -f):
+10^3	0m0.010s		0m0.009s
+10^4	0m0.018s		0m0.019s
+10^5	0m0.235s		0m0.296s
+10^6	0m4.857s		0m4.807s
+
+
+The unbuffered version of sfrob took an order of magnitude longer to do the same job.
+The shell script version beat the both other versions.
+
+For my implementations, a tenfold increase in the number of lines corresponded with
+an approximately tenfold increase in run time.	
+Indicates that the number of comparisons also increases linearly/proportionally.

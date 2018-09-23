@@ -1,0 +1,128 @@
+sort /...dir...
+     printed a ton of words
+sort /...dir... >words
+     put the words into a file named words
+wget ...URL...
+     get the site's HTML in assign2.html
+man tr
+    find out what -c and -s do
+cat assign2.html | tr -c 'A-Za-z' '[\n*]'
+    prints out words
+    one per line, withs some blank lines 
+    replaces character that are not alphabetic with new lines
+cat assign2.html | tr -cs 'A-Za-z' '[\n*]'
+    prints out words, no blank lines
+    since -s means that each 'word' is divided by at most one newline
+cat assign2.html | tr -cs 'A-Za-z' '[\n*]' | sort
+    same thing as previous, but with the words sorted
+cat assign2.html | tr -cs 'A-Za-z' '[\n*]' | sort -u
+    same thing as previous, but without repeats
+cat assign2.html | tr -cs 'A-Za-z' '[\n*]' | sort -u | comm - words
+    prints out 3 columns of words
+    the 2nd column being is vastly larger than the others. 
+    Column 1: unique to assign2. Column 2: unique to words. Column 3: shared
+cat assign2.html | tr -cs 'A-Za-z' '[\n*]' | sort -u | comm -23 - words
+    prints out only the first column, which are words unique to assign2
+
+wget ...URL...
+     get the web page with the words
+cat hwnwdseng.htm | sed 's/<u>(.*)<\u>/\1/g' >test
+    no discernable effect
+cat hwnwdseng.htm | sed 's/<u>.*<\u>/Hello/g' >test
+    no discernable effect
+cat hwnwdseng.htm | sed 's/<u>/Hello/g' >test
+    replaced <u> tags with Hello
+cat hwnwdseng.htm | sed 's/<\u>/Hello/g' >test
+    no discernable effect
+cat hwnwdseng.htm | sed 's/<u>\([^>]*\)</u>/\1/g' >test
+    error - need to escape the closing tag's slash
+    also, cover more cases
+cat hwnwdseng.htm | sed 's/<[Uu]>\([^>]*\)<\/[Uu]>/\1/g' >test
+    case insensitive
+    removes the underline tags
+... | sed 's/\([A-Z]\)/\L\1/g'
+    converts all uppercase characters to lowercase
+... | sed 's/`/\'/g'
+    escape didn't work on apostrophe
+... | sed 's/`/'\''/g'
+    enclose the escaped character in another pair of apostrophes...
+changed [Uu] back to just 'u'
+... | sed '/<!doctype/,/<\/font><\/td>/d'
+    didn't quite delete everything before the table
+... | grep '<td>.*<\/td>'
+    forego the chopping off the start and instead just keep lines with <td> tag
+... | sed '0~2d'
+    remove every other line; words didn't match up correctly
+... | sed 's/<[^>]*>//g'
+    remove all the html tags - leaves some empty lines
+... | sed '/^[:space:]*$/d'
+    meant to delete any lines that are just whitespace
+... | sed '/^[[:space:]]*$/d'
+    worked this time
+... | sed '1~2d'
+    removal aligned correctly this time
+... | sed 's/,//g'
+    remove commas
+... | sed 's/[[:blank:]]/\n/g'
+    replace spaces with newlines -- forgot about the other whitespaces
+... | sed 's/^[[:blank:]]*//g'
+    remove any leading blanks
+... | sed 's/[[:blank:]]*$//g'
+    remove any trailing blanks
+... | grep '^['\''pkmnwlhaeiou]*$'
+    keep only lines that exclusively contain hawaiian characters
+... | sort -u
+    remove duplicates and sort
+
+
+cat assign2.html | tr '[:upper:]' '[:lower:]' | 
+tr -cs ''\''pkmnwlhaeiou' '[\n*]' | sort -u | comm -23 - hwords 
+> HawaiianMispelled
+    read assign2, make it all lowercase, and use Hawaiian characters instead
+ -RESULT: 197 words in HawaiianMispelled
+
+cat assign2.html | tr '[:upper:]' '[:lower:]' | 
+tr -cs 'A-Za-z' '[\n*]' | sort -u | comm -23 - words 
+> EnglishMispelled
+ -RESULT: 38 words in EnglishMispelled
+
+cat hwnwdseng.htm | tr '[:upper:]' '[:lower:]' | 
+tr -cs ''\''pkmnwlhaeiou' '[\n*]' | sort -u | comm -23 - hwords 
+> HawaiianMispelled2
+    -RESULT: 218 words in EnglishMispelled2
+
+comm -12 EnglishMispelled hwords > ExH
+     leaves column 3, meaning words common to both
+     words mispelled in English, but also in the list of Hawaiian words
+     Examples: halau, lau, wiki
+
+comm -12 HawaiianMispelled words > HxE
+     Mispelled as Hawaiian, but exists in English
+     Examples: a, ail, ain, ake, al, ale, alen, all, amine...
+ 
+     
+#! /bin/bash
+
+html=$(cat);
+#replace all instances of <u>X</u> with X,
+#change everything to lowercase and replace grave accent with apostrophe
+processing="$(echo "$html" | sed 's/`/'\''/g')";
+processing="$(echo "$processing" | sed 's/<u>\([^>]*\)<\/u>/\1/g')";
+processing="$(echo "$processing" | sed 's/\([A-Z]\)/\L\1/g')";
+#keep only the lines with <td> and </td>
+processing="$(echo "$processing" | grep '<td>.*<\/td>')";
+#remove html tags and blank lines resulting from it
+processing="$(echo "$processing" | sed 's/<[^>]*>//g')";
+processing="$(echo "$processing" | sed '/^[[:space:]]*$/d')";
+#remove every other line, leaving only hawaiian words
+processing="$(echo "$processing" | sed '1~2d')";
+#delete commas and replace spaces with newline
+processing="$(echo "$processing" | sed 's/,//g')";
+processing="$(echo "$processing" | sed 's/^[[:blank:]]*//g')";
+processing="$(echo "$processing" | sed 's/[[:blank:]]*$//g')";
+processing="$(echo "$processing" | sed 's/[[:blank:]]/\n/g')";
+#eliminate words containing non-hawaiian characters
+processing="$(echo "$processing" | grep '^['\''pkmnwlhaeiou]*$')";
+#sort with no duplicates
+processing="$(echo "$processing" | sort -u)";
+echo "$processing";

@@ -1,0 +1,21 @@
+1. Presumably, it improves the performance of ls, 
+in the sense that ls is given more flexibility in its use. 
+Instead of -a overriding -A, you can now choose which takes precedence.
+   Not sure if I'm doing something wrong, 
+but using the modified ls doesn't output color coded files, 
+which could be seen as a downside/downgrade.
+
+
+2. Conflict with existing usage or conflict with future versions of coreutils
+when patching or otherwise. 
+A diff file meant for the default coreutils likely
+wouldn't work on the modified version..
+
+
+3. The file is empty, so no line can be taken from it. 
+The line "return seq[int(self.random() * len(seq))]" throws an exception 
+since seq is empty.
+
+
+4. With python3, automatic tuple unpacking was removed, so (errno, strerror) isn't unpacked into errno and strerror
+

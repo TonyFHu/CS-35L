@@ -1,0 +1,61 @@
+git checkout v3.0
+git checkout -b quote
+
+patch -p1 < ~/quote-3.0-patch.txt
+
+
+ChangeLog entry
+2018-06-08  Tony Fan Hu  <tonyh@lnxsrv05.seas.ucla.edu>
+
+	* maint: quote 'like this' or "like this", not `like this'
+
+	This is in response to a recent change in the GNU coding standards,
+	which now suggest quoting 'like this' or "like this", instead of
+	`like this' or ``like this''.
+	*src/cmp.c, src/diff.c, src/diff3.c, src/dir.c, src/util.c, src/sdiff.c
+
+git add .
+git commit
+    write in ChangeLog entry
+
+git format-patch -1 --stdout > formatted-patch.txt
+    create the formatted-patch
+
+get partner's patch (Zhengfu Ding)
+
+git checkout v3.0
+git am formatted-patch-jeff.txt
+
+./bootstrap
+patch 
+./configure
+make
+make check
+
+src/diff . -
+   uses ' correctly
+
+make distdir
+   cd into created dir and check ChangeLog
+      Entry is there
+
+Tried cloning repo from ~eggert/src/gnu/emacs
+      failed saying: disk quota exceeded
+cloned from git.savannah instead
+https://git.savannah.gnu.org/git/emacs.git
+also failed: premature endof pack file, 44 bytes missing
+
+nabbed a copy from my partner instead
+
+gitk 
+couldn't make gitk work, so used someone else's screenshot
+
+the most recent update not more recent than 2015-01-25
+"Merge branch 'master' into xwidget" - Joakim Verona - 2015-01-25 12:19:27
+
+looking at the screenshot, the top window, from left to right,
+has a short description of the change, the author, and then date committed
+on the right.
+
+The bottom left window has information regarding the commits position in
+the tree; parent, children, branches, etc.

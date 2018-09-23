@@ -1,0 +1,45 @@
+export PATH=/usr/local/cs/bin:$PATH
+sort --version
+     8.29
+cat /dev/urandom | od -t f 40000000 > temp1
+    get 10 million floating point numbers
+cat temp1 | cut -c 10- > temp2
+    shave off the first 9 characters of each line (remove addresses)
+cat temp2 | tr [:blank:] '\n' > temp3
+    place each float on its own line
+cat temp3 | sed '/^$/d' > floats
+    remove any blank line (starts and ends with nothing)
+
+
+sort comparisons
+
+default
+time -p sort -g floats > /dev/null
+     real 21.26
+     user 114.44
+     sys 0.47
+
+1 thread
+time -p sort -g --parallel 1 floats > /dev/null
+     real 107.58
+     user 107.36
+     sys 0.21
+
+2 threads
+time -p sort -g --parallel 2 floats > /dev/null
+     real 57.54
+     user 109.26
+     sys 0.28
+
+4 threads
+time -p sort -g --parallel 4 floats > /dev/null
+     real 33.59
+     user 113.09
+     sys 0.38
+
+8 threads
+time -p sort -g --parallel 8 floats > /dev/null
+     real 21.23
+     user 114.30
+     sys 0.46
+

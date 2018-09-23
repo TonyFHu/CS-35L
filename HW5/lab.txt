@@ -1,0 +1,184 @@
+Write the stated programs:
+
+*************tr2b**************
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+
+void reportError(const char* msg)
+{
+  fprintf(stderr, "%s\n", msg);
+  exit(1);
+}
+
+void checkIOError(FILE* file)
+{
+  if (ferror(file))
+    reportError("IO Error");
+}
+
+int checkInput(int argc, char*** argv)
+{
+  int i, j;
+  char** args = *argv;
+  //check for # args
+  if (argc != 3)
+    reportError("Invalid number of arguments; Expected 2");
+  //check for same length
+  if (strlen(args[1]) != strlen(args[2]))
+    reportError("Argument lengths do not match");
+  //check for duplicate chars
+  for (i = 0; i < strlen(args[1]); i++)
+    {
+      for (j = 0; j < strlen(args[1]); j++)
+	{
+	  if (i != j)
+	    {
+	      if ((args[1][i] == args[1][j]) || (args[2][i] == args[2][j]))
+		reportError("Duplicate char in argument strings");
+	    }
+	}
+    }
+}
+
+char translate(char c, char** d_in, char** d_out)
+{
+  char* in, * out;
+  int i;
+  in = *d_in;
+  out = *d_out;
+  for (i = 0; i < strlen(in); i++)
+    {
+      if (in[i] == c)
+	return out[i];
+    }
+  return c;
+}
+
+int main(int argc, char** argv)
+{
+  char* in, * out, c;
+  checkInput(argc, &argv);
+  in = argv[1];
+  out = argv[2];
+  for (;;)
+    {
+      c = getchar();
+      checkIOError(stdin);
+      if (feof(stdin))
+	break;
+      putchar(translate(c, &in, &out));
+      checkIOError(stdout);
+    }
+  return 0;
+}
+
+************End of tr2b*************
+
+
+************tr2u*************
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+
+void reportError(const char* msg)
+{
+  char newline = '\n';
+  for (; *msg != '\0'; msg++)
+    {
+      write(2, msg, 1);
+    }
+  write(2, &newline, 1);
+ exit(1);
+}
+
+int checkInput(int argc, char*** argv)
+{
+  int i, j;
+  char** args = *argv;
+  //check for # args
+  if (argc != 3)
+    reportError("Invalid number of arguments; Expected 2");
+  //check for same length
+  if (strlen(args[1]) != strlen(args[2]))
+    reportError("Argument lengths do not match");
+  //check for duplicate chars
+  for (i = 0; i < strlen(args[1]); i++)
+    {
+      for (j = 0; j < strlen(args[1]); j++)
+	{
+	  if (i != j)
+	    {
+	      if ((args[1][i] == args[1][j]) || (args[2][i] == args[2][j]))
+		reportError("Duplicate char in argument strings");
+	    }
+	}
+    }
+}
+
+char translate(char c, char** d_in, char** d_out)
+{
+  char* in, * out;
+  int i;
+  in = *d_in;
+  out = *d_out;
+  for (i = 0; i < strlen(in); i++)
+    {
+      if (in[i] == c)
+	return out[i];
+    }
+  return c;
+}
+
+int main(int argc, char** argv)
+{
+  char* in, * out, c;
+  checkInput(argc, &argv);
+  in = argv[1];
+  out = argv[2];
+  while (read(0, &c, 1))
+    {      
+      c = translate(c, &in, &out);
+      if (write(1, &c, 1) == -1)
+      	reportError("IO Error: failed to write");
+    }
+  return 0;
+}
+
+*************End of tr2u*************
+
+
+use strace on both tr2b and tr2u with a 5687098 byte file
+    copy into file:
+    	 strace -co strace_buffered ./tr2b a a < filename > out
+	 	89 calls to read, 87 to write
+	 strace -co strace_unbuffered ./tr2u a a < filename > out
+	 	5687098 calls to write, 5687100 to read
+    copy into terminal:
+    	 strace -co strace_buffered ./tr2b a a < filename
+	 	89 calls to read, 27113 to write
+	 strace -co strace_unbuffered ./tr2u a a < filename	
+	 	5687098 calls to write, 567100 to read
+		
+The unbuffered version requires many, many more system calls.
+Outputting to the terminal requires more calls to write for the buffered.
+	   Unbuffered is unaffected.
+
+Time Tests:
+     using the 5687098-byte file:
+     	   buffered:
+		real	0m0.414s
+		user	0m0.343s
+		sys	0m0.021s
+	   unbuffered:
+		real	6m48.285s
+		user	1m33.246s
+		sys	6m7.771s
+
+	
+Clearly, the performance of the buffered version is vastly superior.
+The difference in number of system calls altered running time by orders of magnitude.
+    	 

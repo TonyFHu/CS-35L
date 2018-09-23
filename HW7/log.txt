@@ -1,0 +1,38 @@
+Follow setup instuctions for BeagleBone
+
+
+
+On host
+
+Create keypair
+$ ssh-keygen
+  default file
+  password: securepassword
+
+Find IP
+$ ifconfig
+
+Create profile for a user
+sudo useradd -d /home/user -m user
+sudo passwd user
+  password: goodpassword
+sudo mkdir /home/user/.ssh
+cd /home/user
+sudo chown -R user .ssh
+sudo chmod 700 .ssh
+
+
+
+On client
+
+Confirm functionality
+ssh -X user@IP
+  enter password (client's)
+
+Key-based authentication
+ssh-copy-id -i user@IP
+vim /etc/ssh/sshd_config
+  disable password authentication
+eval $(ssh-agent)
+  ssh-add fails without this step
+ssh-add

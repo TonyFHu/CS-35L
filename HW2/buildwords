@@ -1,0 +1,25 @@
+#! /bin/bash
+
+html=$(cat);
+#replace all instances of <u>X</u> with X
+#change everything to lowercase and replace grave accent with apostrophe
+processing="$(echo "$html" | sed 's/`/'\''/g')";
+processing="$(echo "$processing" | sed 's/<u>\([^>]*\)<\/u>/\1/g')";
+processing="$(echo "$processing" | sed 's/\([A-Z]\)/\L\1/g')";
+#keep only the lines with <td> and </td>
+processing="$(echo "$processing" | grep '<td>.*<\/td>')";
+#remove html tags and blank lines resulting from it
+processing="$(echo "$processing" | sed 's/<[^>]*>//g')";
+processing="$(echo "$processing" | sed '/^[[:space:]]*$/d')";
+#remove every other line, leaving only hawaiian words
+processing="$(echo "$processing" | sed '1~2d')";
+#delete commas and replace spaces with newline
+processing="$(echo "$processing" | sed 's/,//g')";
+processing="$(echo "$processing" | sed 's/^[[:blank:]]*//g')";
+processing="$(echo "$processing" | sed 's/[[:blank:]]*$//g')";
+processing="$(echo "$processing" | sed 's/[[:blank:]]/\n/g')";
+#eliminate words containing non-hawaiian characters
+processing="$(echo "$processing" | grep '^['\''pkmnwlhaeiou]*$')";
+#sort with no duplicates
+processing="$(echo "$processing" | sort -u)";
+echo "$processing";
